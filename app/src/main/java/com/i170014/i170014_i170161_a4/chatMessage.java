@@ -98,7 +98,7 @@ public class chatMessage extends AppCompatActivity {
         });
     }
     public void putMessageTextInDB(messageData  MSG){
-        String url="http://192.168.18.12/A4/putMessage.php";
+        String url="http://192.168.18.12/A4/putGroupMessage.php";
         StringRequest request=new StringRequest(
                 Request.Method.POST,
                 url,
@@ -106,6 +106,7 @@ public class chatMessage extends AppCompatActivity {
 
                     @Override
                     public void onResponse(String response) {
+                        Log.d("TAGGGG",response);
                         Toast.makeText(chatMessage.this, " "+response+" Message Sent", Toast.LENGTH_LONG).show();
                         postNotifications(new notificationModel(reciever.getEmail(), "1708c8f4-4894-40b6","You Recieved a New Message From :  "+sender.getFirstName()+" ",MSG.getHour()+" : "+MSG.getMinute()));
                         startActivity(getIntent());
@@ -115,6 +116,7 @@ public class chatMessage extends AppCompatActivity {
                 new Response.ErrorListener(){
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        Log.d("TAGGGG",error.toString());
                         Toast.makeText(chatMessage.this, " "+error.toString(), Toast.LENGTH_LONG).show();
                     }}
         ){

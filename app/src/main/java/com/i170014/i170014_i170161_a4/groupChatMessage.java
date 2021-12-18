@@ -116,18 +116,19 @@ public class groupChatMessage extends AppCompatActivity {
         ){
             protected Map<String,String> getParams(){
                 Map<String,String> data=new HashMap<String,String>();
-                data.put("MessageType",MSG.getMessageType());
                 data.put("GroupID",GroupID);
                 data.put("UserID",MSG.getSender());
                 data.put("MessageHour",MSG.getHour());
                 data.put("MessageMin",MSG.getMinute());
                 data.put("MessageRead",MSG.getRead());
                 if (MSG.getMessageType().equals("TextMessage")) {
+                    data.put("MessageType","TextMessage");
                     data.put("MessageText",MSG.getText());
 
                 }else{
                     encodeBitmapImage(MSG.getMessageImage());
                     if(encodedImageString!=null){
+                        data.put("MessageType","ImageMessage");
                         data.put("MessageImage",encodedImageString);
                     }
                 }
