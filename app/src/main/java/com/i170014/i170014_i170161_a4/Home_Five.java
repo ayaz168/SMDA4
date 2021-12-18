@@ -3,6 +3,7 @@ package com.i170014.i170014_i170161_a4;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +13,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -48,6 +50,7 @@ public class Home_Five extends AppCompatActivity {
     List<userData> allusers;
     List<userData> phoneContacts;
     List<userData> myFriends;
+    int PERMISSIONS_REQUEST_READ_CONTACTS=10;
     userData currentUser;
     String Email,Pass;
     @Override
@@ -60,16 +63,6 @@ public class Home_Five extends AppCompatActivity {
         SharedPreferences prefs = this.getSharedPreferences("com.ayazafzal.i170014_i170161_A4", Context.MODE_PRIVATE);
         String email = "email";
         prefs.edit().putString(email, Email).apply();
-        allusers=new ArrayList<>();
-
-        Log.d("LGG", String.valueOf(allusers.size()));
-
-        phoneContacts=getPhoneContacts();
-        myFriends=getCommonFriends();
-        currentUser=getCurrentUser(Email);
-
-
-
         callScreen5=findViewById(R.id.callScreen5);
         cameraScreen5=findViewById(R.id.cameraScreen5);
         chatScreen5=findViewById(R.id.chatScreen5);
@@ -105,9 +98,10 @@ public class Home_Five extends AppCompatActivity {
         contactsScreen5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Intent inX=new Intent(Home_Five.this,ContactScreen_Seven.class);
-                //inX.putExtra("email",currentUser.getEmail());
-                //startActivity(inX);
+                Intent inX=new Intent(Home_Five.this, ContactScreen_Seven.class);
+                inX.putExtra("Email",Email);
+                inX.putExtra("Pass",Pass);
+                startActivity(inX);
             }
         });
         writeNewMessgeScreen5=findViewById(R.id.writeNewMessgeScreen5);
@@ -119,7 +113,7 @@ public class Home_Five extends AppCompatActivity {
                 //startActivity(inGX);
             }
         });
-        getAllUsers();
+        requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
@@ -136,6 +130,17 @@ public class Home_Five extends AppCompatActivity {
             else
             {
                 Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+            }
+
+        }
+        else if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(Home_Five.this, "Permission Given !", Toast.LENGTH_SHORT).show();
+                getAllUsers();
+
+
+            } else {
+                Toast.makeText(Home_Five.this, "Without Permission Contacts won't be synced", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -173,14 +178,47 @@ public class Home_Five extends AppCompatActivity {
     }
 
     List<userData> getPhoneContacts(){
-        return null;
+
+        List<userData> contacts = new ArrayList<>();
+        ContentResolver cr = getContentResolver();
+        Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            // Iterate through the cursor
+            do {
+                // Get the contacts name
+                if(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)>0){
+                    @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    @SuppressLint("Range") String id = cursor.getString(
+                            cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                    Cursor pCur = cr.query(
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                            new String[]{id}, null);
+
+                    while (pCur.moveToNext()) {
+                        @SuppressLint("Range") String phoneNo = pCur.getString(pCur.getColumnIndex(
+                                ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        Log.d("CX",name);
+                        Log.d("CX", phoneNo);
+                        contacts.add(new userData(name,name,phoneNo));
+                    }
+                    pCur.close();
+                }
+            } while (cursor.moveToNext());
+        }
+        // Close the curosor
+        cursor.close();
+        return contacts;
     }
-    List<userData> getCommonFriends(){
+    userData getCurrentUser(String Email,List<userData> usX){
+        for(userData uS: usX){
+            if(uS.getEmail().equals(Email)){
+                return uS;
+            }
+        }
         return null;
-    }
-    userData getCurrentUser(String Email){
-        //Get Current User Based on Email
-        return null;
+
 
     }
     public List<userData> getAllUsers(){
@@ -219,10 +257,17 @@ public class Home_Five extends AppCompatActivity {
 
                                     ));
                                 }
+                                phoneContacts=getPhoneContacts();
+                                currentUser=getCurrentUser(Email,lX);
+                                Log.d("CurrentUser",currentUser.getFirstName());
+                                Log.d("CurrentUser", String.valueOf(lX.size()));
+                                Log.d("CurrentUser", String.valueOf(phoneContacts.size()));
+                                myFriends=syncContacts(phoneContacts,lX);
+                                myFriends.remove(currentUser);
                                 recycleView=findViewById(R.id.recyclerViewScreen5);
                                 RecyclerView.LayoutManager layoutManager=new LinearLayoutManager(Home_Five.this);
                                 recycleView.setLayoutManager(layoutManager);
-                                myAdapter=new newUserAdapter(Home_Five.this,lX,Email,Pass);
+                                myAdapter=new newUserAdapter(Home_Five.this,myFriends,currentUser);
                                 recycleView.setAdapter(myAdapter);
                                 //myAdapter.notifyDataSetChanged();
                             }else{
@@ -243,7 +288,30 @@ public class Home_Five extends AppCompatActivity {
         Volley.newRequestQueue(Home_Five.this).add(request);
         return lX;
     }
+    public List<userData>syncContacts(List<userData> phoneC,List<userData> fbC){
+        List<userData> finalFriends=new ArrayList<userData>();
+        for(userData usX: phoneC){
+            Log.d("allCC",usX.getFirstName());
+            userData idX=checkSimilar(usX.Phone,fbC);
+            if(idX!=null){
+                Log.d("allCC",usX.FirstName);
+                finalFriends.add(idX);
+            }
+        }
+        return finalFriends;
 
+    }
+    public userData checkSimilar(String phone,List<userData> fromDB){
+        for(userData usX: fromDB){
+            Log.d("User",usX.getFirstName());
+            Log.d("User",usX.getPhone());
+            Log.d("User",phone);
+            if(usX.getPhone().contains(phone.replace(" ",""))){
+                return usX;
+            }
+        }
+        return null;
+    }
     @Override
     protected void onResume(){
         super.onResume();

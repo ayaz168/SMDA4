@@ -1,5 +1,6 @@
 package com.i170014.i170014_i170161_a4;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -28,11 +29,10 @@ public class newUserAdapter extends RecyclerView.Adapter<newUserAdapter.MyViewHo
     userData currentUser;
 
 
-    public newUserAdapter(Home_Five c, List<userData> allusers, String email, String pass) {
+    public newUserAdapter(Home_Five c, List<userData> allusers, userData user) {
         this.lX = allusers;
         this.c = c;
-        this.Email=email;
-        this.Pass=pass;
+        this.currentUser=user;
     }
 
     @NonNull
@@ -42,40 +42,35 @@ public class newUserAdapter extends RecyclerView.Adapter<newUserAdapter.MyViewHo
         //Initializes each row for data?
         return new MyViewHolder(item);
     }
-    void start(String reX, String FullName){
+    void start(String email, String FullName){
         Intent inGX=new Intent(c,chatMessage.class);
-        inGX.putExtra("SenderEmail",Email);
+        inGX.putExtra("SenderEmail",currentUser.getEmail());
         inGX.putExtra("SenderID",currentUser.getId());
-        inGX.putExtra("RecieverName",FullName);
-        inGX.putExtra("RecieverID", reX);
+        inGX.putExtra("RecieverFullName",FullName);
+        inGX.putExtra("RecieverEmail", email);
         c.startActivity(inGX);
     }
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        if(lX.get(position).getEmail().equals(Email)){
-            this.currentUser=lX.get(position);
+    public void onBindViewHolder(@NonNull MyViewHolder holder, @SuppressLint("RecyclerView") int position) {
+        Log.d("Binder", String.valueOf(position));
+        holder.contactNameRV5.setText(lX.get(position).getFirstName());
+        holder.contactMessageRV5.setText(lX.get(position).getBio());
+        Date currentTime = Calendar.getInstance().getTime();
+        int hour=currentTime.getHours();
+        int min = currentTime.getMinutes();
+        holder.contactTimeRV5.setText(String.valueOf(hour)+":"+String.valueOf(min));
+        if(lX.get(position).getStatus().equals("1")){
+            holder.contactStatusRV5.setImageResource(R.drawable.circle_button);
         }
-        else{
-            Log.d("Binder", String.valueOf(position));
-            holder.contactNameRV5.setText(lX.get(position).getFirstName());
-            holder.contactMessageRV5.setText(lX.get(position).getBio());
-            Date currentTime = Calendar.getInstance().getTime();
-            int hour=currentTime.getHours();
-            int min = currentTime.getMinutes();
-            holder.contactTimeRV5.setText(String.valueOf(hour)+":"+String.valueOf(min));
-            if(lX.get(position).getStatus().equals("1")){
-                holder.contactStatusRV5.setImageResource(R.drawable.circle_button);
+        holder.contactPictureRV5.setImageBitmap(lX.get(position).getImage());
+        holder.clickMe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String fullname=lX.get(position).getFirstName()+" "+lX.get(position).getLastName();
+                String recV=lX.get(holder.getAdapterPosition()).getEmail();
+                start(recV,fullname);
             }
-            holder.contactPictureRV5.setImageBitmap(lX.get(position).getImage());
-            holder.clickMe.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    String fullname=lX.get(position).getFirstName()+" "+lX.get(position).getLastName();
-                    String recV=lX.get(holder.getAdapterPosition()).getId();
-                    start(recV,fullname);
-                }
-            });
-        }
+        });
     }
 
     @Override

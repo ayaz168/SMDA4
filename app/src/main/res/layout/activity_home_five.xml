@@ -94,11 +94,10 @@
         <ImageView
             android:id="@+id/contactsScreen5"
             android:layout_width="0dp"
-            android:padding="25dp"
-            android:layout_weight="1"
             android:layout_height="match_parent"
-            android:src="@drawable/friends"
-            />
+            android:layout_weight="1"
+            android:padding="25dp"
+            android:src="@drawable/friends" />
     </LinearLayout>
 
 </LinearLayout>

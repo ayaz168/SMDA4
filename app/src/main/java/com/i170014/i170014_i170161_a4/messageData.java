@@ -1,7 +1,14 @@
 package com.i170014.i170014_i170161_a4;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+
 public class messageData implements Comparable<messageData> {
-    String ID,Sender,Reciever,Hour,Minute,Call,Text,Image,Read,Screenshot;
+    String ID,Sender,Reciever,Hour,Minute,Call,Text,Read,Screenshot;
+    String messageType;
+    Bitmap messageImage;
+
 
     public String getRead() {
         return Read;
@@ -11,17 +18,31 @@ public class messageData implements Comparable<messageData> {
         Read = read;
     }
 
-    public messageData(String id, String sender, String reciever, String hour, String minute, String call, String text, String image, String read, String screenshot) {
+    public messageData(String MesTy,String id, String sender, String reciever, String hour, String minute, String text, String read, String screenshot) {
         ID=id;
+        messageType=MesTy;
         Sender = sender;
         Reciever = reciever;
         Hour = hour;
         Minute = minute;
         Text = text;
-        Image = image;
         Read=read;
         Screenshot = screenshot;
     }
+    public messageData(String MesTy,String id, String sender, String reciever, String hour, String minute, String image, String read, String screenshot,int a) {
+        ID=id;
+        messageType=MesTy;
+        Sender = sender;
+        Reciever = reciever;
+        Hour = hour;
+        Minute = minute;
+        Text = "0";
+        byte[] decodedByte = Base64.decode(image, 0);
+        this.messageImage= BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length);
+        Read=read;
+        Screenshot = screenshot;
+    }
+
 
     public String getID() {
         return ID;
@@ -79,12 +100,20 @@ public class messageData implements Comparable<messageData> {
         Text = text;
     }
 
-    public String getImage() {
-        return Image;
+    public String getMessageType() {
+        return messageType;
     }
 
-    public void setImage(String image) {
-        Image = image;
+    public void setMessageType(String messageType) {
+        this.messageType = messageType;
+    }
+
+    public Bitmap getMessageImage() {
+        return messageImage;
+    }
+
+    public void setMessageImage(Bitmap messageImage) {
+        this.messageImage = messageImage;
     }
 
     public String getScreenshot() {

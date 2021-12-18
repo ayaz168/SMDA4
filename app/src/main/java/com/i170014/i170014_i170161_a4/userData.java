@@ -69,6 +69,11 @@ public class userData {
         Email = email;
         Pass = pass;
     }
+    public userData(String fName,String lName, String phone) {
+        this.FirstName=fName;
+        this.LastName=lName;
+        this.Phone=phone;
+    }
     public userData(String id, String email, String pass, String firstName, String lastName, String gender, String bio, String status, String phone,String Img) {
         Id=id;
         Email = email;

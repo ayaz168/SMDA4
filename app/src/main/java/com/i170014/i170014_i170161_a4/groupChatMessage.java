@@ -1,14 +1,11 @@
 package com.i170014.i170014_i170161_a4;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -39,7 +36,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -48,8 +44,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class chatMessage extends AppCompatActivity {
-    String SenderEmail,SenderID,RecieverEmail,RecieverFullName;
+public class groupChatMessage extends AppCompatActivity {
+    String SenderEmail,SenderID,GroupId,GroupName;
     userData sender,reciever;
     String Message;
     String ImagePath;
@@ -79,9 +75,9 @@ public class chatMessage extends AppCompatActivity {
         //Getting Intent Data
         Bundle extras = getIntent().getExtras();
         SenderID = extras.getString("SenderID");
-        RecieverFullName = extras.getString("RecieverFullName");
         SenderEmail = extras.getString("SenderEmail");
-        RecieverEmail = extras.getString("RecieverEmail");
+        GroupId = extras.getString("GroupID");
+        GroupName = extras.getString("GroupName");
 
         //Calling Async Message Logic
         getAllUsers();
@@ -91,14 +87,14 @@ public class chatMessage extends AppCompatActivity {
         currentImage7.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent inGX=new Intent(chatMessage.this,Home_Five.class);
+                Intent inGX=new Intent(groupChatMessage.this,Home_Five.class);
                 inGX.putExtra("UserId",extras.getString("UserId"));
                 startActivity(inGX);
             }
         });
     }
-    public void putMessageTextInDB(messageData  MSG){
-        String url="http://192.168.18.12/A4/putMessage.php";
+    public void putMessageTextInDB(messageData  MSG, userData sender,String GroupID){
+        String url="http://192.168.18.12/A4/putGroupMessage.php";
         StringRequest request=new StringRequest(
                 Request.Method.POST,
                 url,
@@ -106,8 +102,8 @@ public class chatMessage extends AppCompatActivity {
 
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(chatMessage.this, " "+response+" Message Sent", Toast.LENGTH_LONG).show();
-                        postNotifications(new notificationModel(reciever.getEmail(), "1708c8f4-4894-40b6","You Recieved a New Message From :  "+sender.getFirstName()+" ",MSG.getHour()+" : "+MSG.getMinute()));
+                        Toast.makeText(groupChatMessage.this, " "+response+" Message Sent", Toast.LENGTH_LONG).show();
+                        postNotifications(new notificationModel(sender.getEmail(), "1708c8f4-4894-40b6","You Recieved a New Message From :  "+sender.getFirstName()+" ",MSG.getHour()+" : "+MSG.getMinute()));
                         startActivity(getIntent());
 
                     }
@@ -115,18 +111,17 @@ public class chatMessage extends AppCompatActivity {
                 new Response.ErrorListener(){
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(chatMessage.this, " "+error.toString(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(groupChatMessage.this, "yeet "+error.toString(), Toast.LENGTH_LONG).show();
                     }}
         ){
             protected Map<String,String> getParams(){
                 Map<String,String> data=new HashMap<String,String>();
                 data.put("MessageType",MSG.getMessageType());
-                data.put("SenderID",MSG.getSender());
-                data.put("RecieverID",MSG.getReciever());
+                data.put("GroupID",GroupID);
+                data.put("UserID",MSG.getSender());
                 data.put("MessageHour",MSG.getHour());
                 data.put("MessageMin",MSG.getMinute());
                 data.put("MessageRead",MSG.getRead());
-                data.put("MessageSafe",MSG.getScreenshot());
                 if (MSG.getMessageType().equals("TextMessage")) {
                     data.put("MessageText",MSG.getText());
 
@@ -135,12 +130,11 @@ public class chatMessage extends AppCompatActivity {
                     if(encodedImageString!=null){
                         data.put("MessageImage",encodedImageString);
                     }
-
                 }
                 return data;
             }
         };
-        Volley.newRequestQueue(chatMessage.this).add(request);
+        Volley.newRequestQueue(groupChatMessage.this).add(request);
 
 
     }
@@ -167,7 +161,7 @@ public class chatMessage extends AppCompatActivity {
             ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
             photo.compress(Bitmap.CompressFormat.JPEG,100,byteArrayOutputStream);
             byte[] byteOFImage=byteArrayOutputStream.toByteArray();
-            String myImaageMessage=android.util.Base64.encodeToString(byteOFImage, Base64.DEFAULT);
+            String myImaageMessage= Base64.encodeToString(byteOFImage, Base64.DEFAULT);
             Date currentTime = Calendar.getInstance().getTime();
             int hour=currentTime.getHours();
             int min = currentTime.getMinutes();
@@ -175,7 +169,7 @@ public class chatMessage extends AppCompatActivity {
                     "ImageMessage",
                     "slug",
                     sender.Id,
-                    reciever.Id,
+                    sender.Id,
                     String.valueOf(hour),
                     String.valueOf(min),
                     myImaageMessage,
@@ -184,14 +178,14 @@ public class chatMessage extends AppCompatActivity {
                     1
             );
             Log.d("msg",typedMessage.getText().toString());
-            putMessageTextInDB(MSG);
+            putMessageTextInDB(MSG,sender,"1");
         }else if (requestCode == PICK_FROM_GALLERY && resultCode == Activity.RESULT_OK) {
             String imagePath = getFilePath(data);
             Bitmap photo = BitmapFactory.decodeFile(imagePath);
             ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
             photo.compress(Bitmap.CompressFormat.JPEG,100,byteArrayOutputStream);
             byte[] byteOFImage=byteArrayOutputStream.toByteArray();
-            String myImaageMessage=android.util.Base64.encodeToString(byteOFImage, Base64.DEFAULT);
+            String myImaageMessage= Base64.encodeToString(byteOFImage, Base64.DEFAULT);
             Date currentTime = Calendar.getInstance().getTime();
             int hour=currentTime.getHours();
             int min = currentTime.getMinutes();
@@ -199,7 +193,7 @@ public class chatMessage extends AppCompatActivity {
                     "ImageMessage",
                     "slug",
                     sender.Id,
-                    reciever.Id,
+                    sender.Id,
                     String.valueOf(hour),
                     String.valueOf(min),
                     myImaageMessage,
@@ -208,7 +202,7 @@ public class chatMessage extends AppCompatActivity {
                     1
             );
             Log.d("msg",typedMessage.getText().toString());
-            putMessageTextInDB(MSG);
+            putMessageTextInDB(MSG,sender,"1");
 
         }
 
@@ -222,14 +216,14 @@ public class chatMessage extends AppCompatActivity {
 
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(chatMessage.this, " "+response, Toast.LENGTH_LONG).show();
+                        Toast.makeText(groupChatMessage.this, " "+response, Toast.LENGTH_LONG).show();
 
                     }
                 },
                 new Response.ErrorListener(){
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(chatMessage.this, " "+error.toString(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(groupChatMessage.this, " "+error.toString(), Toast.LENGTH_LONG).show();
                     }}
         ){
             protected Map<String,String> getParams(){
@@ -241,14 +235,14 @@ public class chatMessage extends AppCompatActivity {
                 return data;
             }
         };
-        Volley.newRequestQueue(chatMessage.this).add(request);
+        Volley.newRequestQueue(groupChatMessage.this).add(request);
 
 
     }
     public void updateAdapter(){
         showChatAdapter myAdapter;
         recyclerViewShowChat=findViewById(R.id.recyclerViewShowChat);
-        RecyclerView.LayoutManager myManager=new LinearLayoutManager(chatMessage.this);
+        RecyclerView.LayoutManager myManager=new LinearLayoutManager(groupChatMessage.this);
         recyclerViewShowChat.setLayoutManager(myManager);
         //myAdapter=new showChatAdapter(chatMessage.this,converationTotal,currentUser,reciever.getImage());
         //recyclerViewShowChat.setAdapter(myAdapter);
@@ -330,8 +324,8 @@ public class chatMessage extends AppCompatActivity {
         }
 
     }
-    public void getMessageData(String SenderID, String RecieverID){
-        String url="http://192.168.18.12/A4/getAllMessasges.php";
+    public void getMessageData(String GroupID){
+        String url="http://192.168.18.12/A4/getAllGroupMessasges.php";
         StringRequest request=new StringRequest(
                 Request.Method.POST,
                 url,
@@ -339,6 +333,7 @@ public class chatMessage extends AppCompatActivity {
 
                     @Override
                     public void onResponse(String response) {
+                        Log.d("nope",response);
                         JSONObject obj= null;
                         try {
                             obj = new JSONObject(response);
@@ -351,26 +346,26 @@ public class chatMessage extends AppCompatActivity {
                                     if(MessageType.equals("TextMessage")){
                                         indMessage=new messageData(
                                                 "TextMessage",
-                                                allMessages.getJSONObject(i).getString("MessageID"),
-                                                allMessages.getJSONObject(i).getString("SenderID"),
-                                                allMessages.getJSONObject(i).getString("RecieverID"),
+                                                allMessages.getJSONObject(i).getString("GroupMessageID"),
+                                                allMessages.getJSONObject(i).getString("UserID"),
+                                                GroupID,
                                                 allMessages.getJSONObject(i).getString("MessageHour"),
                                                 allMessages.getJSONObject(i).getString("MessageMin"),
                                                 allMessages.getJSONObject(i).getString("MessageText"),
                                                 allMessages.getJSONObject(i).getString("MessageRead"),
-                                                allMessages.getJSONObject(i).getString("MessageSafe")
+                                                allMessages.getJSONObject(i).getString("MessageRead")
                                         );
                                     }else{
                                         indMessage=new messageData(
                                                 "ImageMessage",
-                                                allMessages.getJSONObject(i).getString("MessageID"),
-                                                allMessages.getJSONObject(i).getString("SenderID"),
-                                                allMessages.getJSONObject(i).getString("RecieverID"),
+                                                allMessages.getJSONObject(i).getString("GroupMessageID"),
+                                                allMessages.getJSONObject(i).getString("UserID"),
+                                                GroupID,
                                                 allMessages.getJSONObject(i).getString("MessageHour"),
                                                 allMessages.getJSONObject(i).getString("MessageMin"),
                                                 allMessages.getJSONObject(i).getString("MessageImage"),
                                                 allMessages.getJSONObject(i).getString("MessageRead"),
-                                                allMessages.getJSONObject(i).getString("MessageSafe"),
+                                                allMessages.getJSONObject(i).getString("MessageRead"),
                                                 1
                                         );
                                     }
@@ -382,10 +377,10 @@ public class chatMessage extends AppCompatActivity {
                                     RecyclerView recyclerViewShowChat;
                                     showChatAdapter myAdapter;
                                     recyclerViewShowChat=findViewById(R.id.recyclerViewShowChat);
-                                    RecyclerView.LayoutManager myManager=new LinearLayoutManager(chatMessage.this);
+                                    RecyclerView.LayoutManager myManager=new LinearLayoutManager(groupChatMessage.this);
                                     recyclerViewShowChat.setLayoutManager(myManager);
                                     Collections.sort(myMessages);
-                                    myAdapter=new showChatAdapter(chatMessage.this,myMessages,sender,reciever.getImage());
+                                    myAdapter=new showChatAdapter(groupChatMessage.this,myMessages,sender,sender.getImage());
                                     recyclerViewShowChat.setAdapter(myAdapter);
                                     sendMessage.setOnClickListener(new View.OnClickListener() {
                                         @Override
@@ -398,7 +393,7 @@ public class chatMessage extends AppCompatActivity {
                                                     "TextMessage",
                                                     "slug",
                                                     sender.Id,
-                                                    reciever.Id,
+                                                    sender.Id,
                                                     String.valueOf(hour),
                                                     String.valueOf(min),
                                                     Message,
@@ -406,7 +401,7 @@ public class chatMessage extends AppCompatActivity {
                                                     "1"
                                             );
                                             Log.d("msg",typedMessage.getText().toString());
-                                            putMessageTextInDB(MSG);
+                                            putMessageTextInDB(MSG,sender,GroupID);
 
                                         }
                                     });
@@ -426,8 +421,8 @@ public class chatMessage extends AppCompatActivity {
                                     openGallery.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View view) {
-                                            if (ActivityCompat.checkSelfPermission(chatMessage.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                                                ActivityCompat.requestPermissions(chatMessage.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
+                                            if (ActivityCompat.checkSelfPermission(groupChatMessage.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                                ActivityCompat.requestPermissions(groupChatMessage.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
                                             } else {
                                                 Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                                                 startActivityForResult(galleryIntent, PICK_FROM_GALLERY);
@@ -444,7 +439,7 @@ public class chatMessage extends AppCompatActivity {
                                 Log.d("res","No Message Recieved");
                             }
                         } catch (JSONException e) {
-                            Log.d("listDataXXX",e.toString());
+                            Log.d("nope",e.toString());
 
                         }
                     }
@@ -452,17 +447,16 @@ public class chatMessage extends AppCompatActivity {
                 new Response.ErrorListener(){
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(chatMessage.this, " "+error.toString(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(groupChatMessage.this, " "+error.toString(), Toast.LENGTH_LONG).show();
                     }}
         ){
             protected Map<String,String> getParams(){
                 Map<String,String> data=new HashMap<String,String>();
-                data.put("SenderID",SenderID);
-                data.put("RecieverID",RecieverID);
+                data.put("GroupID",GroupID);
                 return data;
             }
         };
-        Volley.newRequestQueue(chatMessage.this).add(request);
+        Volley.newRequestQueue(groupChatMessage.this).add(request);
 
 
     }
@@ -499,18 +493,11 @@ public class chatMessage extends AppCompatActivity {
                                     if(temp.getEmail().equals(SenderEmail)){
                                         Log.d("SenderX",temp.getFirstName());
                                         sender=temp;
-                                    }else if(temp.getEmail().equals(RecieverEmail)){
-                                        Log.d("RecieverX",temp.getFirstName());
-                                        reciever=temp;
                                     }
-                                    currentUserName7.setText(RecieverFullName);
+                                    currentUserName7.setText(GroupName);
 
                                 }
-                                Log.d("uSX","Sending Message to : "+reciever.getFirstName()+" from : "+sender.getFirstName());
-                                Toast.makeText(chatMessage.this,
-                                        sender.getFirstName()+" --  "+reciever.getFirstName(),
-                                        Toast.LENGTH_LONG).show();
-                                getMessageData(sender.getId(),reciever.getId());
+                                getMessageData(GroupId);
 
                             }else{
                                 Log.d("Lg","User Load Error");
@@ -527,13 +514,13 @@ public class chatMessage extends AppCompatActivity {
                     }
                 }
         );
-        Volley.newRequestQueue(chatMessage.this).add(request);
+        Volley.newRequestQueue(groupChatMessage.this).add(request);
     }
     private void encodeBitmapImage(Bitmap image) {
         ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG,100,byteArrayOutputStream);
         byte[] byteOFImage=byteArrayOutputStream.toByteArray();
-        encodedImageString=android.util.Base64.encodeToString(byteOFImage, Base64.DEFAULT);
+        encodedImageString= Base64.encodeToString(byteOFImage, Base64.DEFAULT);
 
     }
 

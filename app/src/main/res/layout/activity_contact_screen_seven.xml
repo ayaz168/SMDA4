@@ -7,7 +7,7 @@
     android:background="#242524"
     tools:context=".Home_Five"
     android:orientation="vertical"
-    android:weightSum="10">
+    android:weightSum="9">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -51,43 +51,15 @@
         android:layout_width="match_parent"
         android:padding="5dp"
         android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_weight="1"
         android:background="#000000"
         android:orientation="vertical"
         android:weightSum="2">
         <LinearLayout
-            android:id="@+id/newContact7"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:padding="5dp"
-            android:weightSum="5">
-            <ImageView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/rounded_layout"
-                android:padding="20dp"
-                android:src="@drawable/new_contact"/>
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="4">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="New Contact"
-                    android:textColor="#FFFFFF"
-                    android:paddingLeft="20dp"
-                    android:layout_gravity="center_vertical"/>
-            </LinearLayout>
-        </LinearLayout>
-        <LinearLayout
             android:id="@+id/newGroup7"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:orientation="horizontal"
             android:padding="5dp"
             android:weightSum="5">
@@ -117,7 +89,7 @@
         android:layout_width="match_parent"
         android:padding="5dp"
         android:layout_height="0dp"
-        android:layout_weight="5"
+        android:layout_weight="6"
         android:background="#000000">
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewScreen7"

@@ -16,6 +16,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -26,8 +28,8 @@ public class showChatAdapter extends RecyclerView.Adapter<showChatAdapter.MyView
     Context c;
     List<messageData> lX;
     userData currentUser;//For screenshot
-    String recImage;
-    String imageP;
+    Bitmap recImage;
+    Bitmap imageP;
     public static final int TYPELEFTTEXT=0;
     public static final int TYPERIGHTTEXT=1;
     public static final int TYPERIGHTIMAGE=2;
@@ -35,7 +37,7 @@ public class showChatAdapter extends RecyclerView.Adapter<showChatAdapter.MyView
     public static boolean showImage=false;
     public static boolean showText=false;
     public static boolean showCall=false;
-    public showChatAdapter(Context c, List<messageData> lX, userData currentUser, String Path) {
+    public showChatAdapter(Context c, List<messageData> lX, userData currentUser, Bitmap Path) {
         this.c = c;
         this.lX = lX;
         this.currentUser = currentUser;
@@ -64,28 +66,16 @@ public class showChatAdapter extends RecyclerView.Adapter<showChatAdapter.MyView
     @SuppressLint({"ResourceAsColor", "SetTextI18n"})
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        if( ! lX.get(holder.getAdapterPosition()).getSender().equals(currentUser.getId())){
-            Bitmap bitmap = BitmapFactory.decodeFile(recImage);
-            holder.userPictureChat.setImageBitmap(bitmap);
+        if(!lX.get(holder.getAdapterPosition()).getSender().equals(currentUser.getId())){
+            holder.userPictureChat.setImageBitmap(recImage);
         }
-        Log.d("Message Data",lX.get(holder.getAdapterPosition()).getText());
-        Log.d("Message Data",lX.get(holder.getAdapterPosition()).getHour()+":"+lX.get(holder.getAdapterPosition()).getMinute());
-        Log.d("Message Data",lX.get(holder.getAdapterPosition()).getImage());
-
         holder.usersTime.setText(lX.get(holder.getAdapterPosition()).getHour()+":"+lX.get(holder.getAdapterPosition()).getMinute());
-        if(!lX.get(position).getImage().equals("0")){
-            Log.d("MSG",lX.get(holder.getAdapterPosition()).getImage());
-            Bitmap bitmapMSG = BitmapFactory.decodeFile(lX.get(holder.getAdapterPosition()).getImage());
-            holder.usersPicture.setImageBitmap(bitmapMSG);
+        if(lX.get(position).getMessageType().equals("ImageMessage")){
+            holder.usersPicture.setImageBitmap(lX.get(holder.getAdapterPosition()).getMessageImage());
         }
-        else if(! lX.get(position).getText().equals("0")){
+        else if(lX.get(position).getMessageType().equals("TextMessage")){
             holder.usersMessage.setText(lX.get(holder.getAdapterPosition()).getText());
-        }else if(showCall){
-            holder.usersMessage.setText("< Call Activity >");
         }
-        showImage=false;
-        showText=false;
-        showCall=false;
         holder.userScrenshot.setText("SAFE");
         holder.messageTile1.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -138,19 +128,19 @@ public class showChatAdapter extends RecyclerView.Adapter<showChatAdapter.MyView
     }
     @Override
     public int getItemViewType(int position) {
-        if(lX.get(position).getText().equals("0")&&lX.get(position).getCall().equals("0")&&!lX.get(position).getImage().equals("0")){//!
+        if(lX.get(position).getMessageType().equals("ImageMessage")){//!
             if (! lX.get(position).getSender().equals(currentUser.getId())){
-                imageP=lX.get(position).getImage();
-                Log.d("MSGX",lX.get(position).getImage());
+                //imageP=lX.get(position).getImage();
+                //Log.d("MSGX",lX.get(position).getImage());
                 return TYPELEFTIMAGE;
             }
             else{
-                imageP=lX.get(position).getImage();
-                Log.d("MSGX",lX.get(position).getImage());
+                //imageP=lX.get(position).getImage();
+                //Log.d("MSGX",lX.get(position).getImage());
                 return TYPERIGHTIMAGE;
             }
 
-        }else if(! lX.get(position).getText().equals("0")) {
+        }else if(lX.get(position).getMessageType().equals("TextMessage")) {
             if (! lX.get(position).getSender().equals(currentUser.getId())){
                 return TYPELEFTTEXT;
             }
