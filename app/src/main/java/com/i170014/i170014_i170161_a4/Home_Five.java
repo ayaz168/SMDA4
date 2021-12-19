@@ -60,7 +60,8 @@ public class Home_Five extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         Email = extras.getString("Email");
         Pass = extras.getString("Pass");
-        SharedPreferences prefs = this.getSharedPreferences("com.ayazafzal.i170014_i170161_A4", Context.MODE_PRIVATE);
+        SharedPreferences prefs = this.getSharedPreferences(
+                "com.i170014.i170014_i170161_a4", Context.MODE_PRIVATE);
         String email = "email";
         prefs.edit().putString(email, Email).apply();
         callScreen5=findViewById(R.id.callScreen5);
