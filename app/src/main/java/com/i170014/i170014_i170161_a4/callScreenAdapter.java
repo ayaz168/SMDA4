@@ -111,15 +111,7 @@ public class callScreenAdapter extends RecyclerView.Adapter<callScreenAdapter.My
                     for (int i = 0; i < lX.size(); i++) {
                         String data = lX.get(i).getFirstName();
                         if (data.toLowerCase().contains(constraint.toString())) {
-                            FilteredArrList.add(new userData(lX.get(i).getId(), lX.get(i).getEmail(), lX.get(i).getPass(), lX.get(i).getFirstName(), lX.get(i).getLastName(), lX.get(i).getGender(), lX.get(i).getBio(), lX.get(i).getStatus(), lX.get(i).getPhone(), lX.get(i).getImage()));
-                        }
-                        data = lX.get(i).getLastName();
-                        if (data.toLowerCase().contains(constraint.toString())) {
-                            FilteredArrList.add(new userData(lX.get(i).getId(), lX.get(i).getEmail(), lX.get(i).getPass(), lX.get(i).getFirstName(), lX.get(i).getLastName(), lX.get(i).getGender(), lX.get(i).getBio(), lX.get(i).getStatus(), lX.get(i).getPhone(), lX.get(i).getImage()));
-                        }
-                        data = lX.get(i).getPhone();
-                        if (data.toLowerCase().contains(constraint.toString())) {
-                            FilteredArrList.add(new userData(lX.get(i).getId(), lX.get(i).getEmail(), lX.get(i).getPass(), lX.get(i).getFirstName(), lX.get(i).getLastName(), lX.get(i).getGender(), lX.get(i).getBio(), lX.get(i).getStatus(), lX.get(i).getPhone(), lX.get(i).getImage()));
+                            FilteredArrList.add(new userData(lX.get(i).getId(), lX.get(i).getEmail(), lX.get(i).getPass(), lX.get(i).getFirstName(), lX.get(i).getLastName(), lX.get(i).getGender(), lX.get(i).getBio(), lX.get(i).getStatus(), lX.get(i).getPhone()));
                         }
                     }
                     // set the Filtered result to return
