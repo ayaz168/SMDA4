@@ -110,16 +110,15 @@ public class callScreenAdapter extends RecyclerView.Adapter<callScreenAdapter.My
                 } else {
                     constraint = constraint.toString().toLowerCase();
                     for (int i = 0; i < lX.size(); i++) {
-                        String data = lX.get(i).getFirstName();
-                        Log.d("data",data);
-                        Log.d("data",constraint.toString().toLowerCase());
-                        if (data.toLowerCase().contains(constraint.toString())) {
+                        String checkFirstName = lX.get(i).getFirstName(), checkLastName= lX.get(i).getLastName(), checkPhone=lX.get(i).getPhone();
+
+                        if (checkFirstName.toLowerCase().contains(constraint.toString()) || checkLastName.toLowerCase().contains(constraint.toString()) || checkPhone.toLowerCase().contains(constraint.toString())) {
                             Log.d("data","here");
                             userData usX=new userData(lX.get(i).getId(), lX.get(i).getEmail(), lX.get(i).getPass(), lX.get(i).getFirstName(), lX.get(i).getLastName(), lX.get(i).getGender(), lX.get(i).getBio(), lX.get(i).getStatus(), lX.get(i).getPhone());
                             usX.setImage(lX.get(i).getImage());
                             FilteredArrList.add(usX);
-
                         }
+
                     }
                     // set the Filtered result to return
                     results.count = FilteredArrList.size();
