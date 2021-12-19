@@ -3,6 +3,7 @@ package com.i170014.i170014_i170161_a4;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +41,8 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -98,7 +101,7 @@ public class chatMessage extends AppCompatActivity {
         });
     }
     public void putMessageTextInDB(messageData  MSG){
-        String url="http://192.168.18.12/A4/putGroupMessage.php";
+        String url="http://192.168.18.12/A4/putMessage.php";
         StringRequest request=new StringRequest(
                 Request.Method.POST,
                 url,
@@ -188,29 +191,70 @@ public class chatMessage extends AppCompatActivity {
             Log.d("msg",typedMessage.getText().toString());
             putMessageTextInDB(MSG);
         }else if (requestCode == PICK_FROM_GALLERY && resultCode == Activity.RESULT_OK) {
-            String imagePath = getFilePath(data);
-            Bitmap photo = BitmapFactory.decodeFile(imagePath);
-            ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
-            photo.compress(Bitmap.CompressFormat.JPEG,100,byteArrayOutputStream);
-            byte[] byteOFImage=byteArrayOutputStream.toByteArray();
-            String myImaageMessage=android.util.Base64.encodeToString(byteOFImage, Base64.DEFAULT);
-            Date currentTime = Calendar.getInstance().getTime();
-            int hour=currentTime.getHours();
-            int min = currentTime.getMinutes();
-            messageData MSG=new messageData(
-                    "ImageMessage",
-                    "slug",
-                    sender.Id,
-                    reciever.Id,
-                    String.valueOf(hour),
-                    String.valueOf(min),
-                    myImaageMessage,
-                    "1",
-                    "1",
-                    1
-            );
-            Log.d("msg",typedMessage.getText().toString());
-            putMessageTextInDB(MSG);
+            Log.d("TAGG","imageUri.getPath()");
+            ClipData clipData = data.getClipData();
+            if (clipData != null) {
+                for (int i = 0; i < clipData.getItemCount(); i++) {
+                    Uri imageUri = clipData.getItemAt(i).getUri();
+                    Log.d("TAGG",imageUri.getPath());
+                    try {
+                        Bitmap photo = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                        Log.d("TAGG",photo.toString());
+                        ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
+                        photo.compress(Bitmap.CompressFormat.JPEG,100,byteArrayOutputStream);
+                        byte[] byteOFImage=byteArrayOutputStream.toByteArray();
+                        String myImaageMessage= Base64.encodeToString(byteOFImage, Base64.DEFAULT);
+                        Date currentTime = Calendar.getInstance().getTime();
+                        int hour=currentTime.getHours();
+                        int min = currentTime.getMinutes();
+                        messageData MSG=new messageData(
+                                "ImageMessage",
+                                "slug",
+                                sender.Id,
+                                reciever.Id,
+                                String.valueOf(hour),
+                                String.valueOf(min),
+                                myImaageMessage,
+                                "1",
+                                "1",
+                                1
+                        );
+                        Log.d("msg",typedMessage.getText().toString());
+                        putMessageTextInDB(MSG);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }else{
+                    Uri uri = data.getData();
+                    Bitmap photo = null;
+                try {
+                    photo = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                    ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
+                    photo.compress(Bitmap.CompressFormat.JPEG,100,byteArrayOutputStream);
+                    byte[] byteOFImage=byteArrayOutputStream.toByteArray();
+                    String myImaageMessage= Base64.encodeToString(byteOFImage, Base64.DEFAULT);
+                    Date currentTime = Calendar.getInstance().getTime();
+                    int hour=currentTime.getHours();
+                    int min = currentTime.getMinutes();
+                    messageData MSG=new messageData(
+                            "ImageMessage",
+                            "slug",
+                            sender.Id,
+                            reciever.Id,
+                            String.valueOf(hour),
+                            String.valueOf(min),
+                            myImaageMessage,
+                            "1",
+                            "1",
+                            1
+                    );
+                    Log.d("msg",typedMessage.getText().toString());
+                    putMessageTextInDB(MSG);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                }
 
         }
 
@@ -432,6 +476,9 @@ public class chatMessage extends AppCompatActivity {
                                                 ActivityCompat.requestPermissions(chatMessage.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
                                             } else {
                                                 Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                                galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                                                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+                                                galleryIntent.setData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                                                 startActivityForResult(galleryIntent, PICK_FROM_GALLERY);
                                             }
 
