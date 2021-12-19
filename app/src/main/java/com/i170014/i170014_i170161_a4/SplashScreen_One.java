@@ -36,8 +36,7 @@ public class SplashScreen_One extends AppCompatActivity {
                     Intent inX=new Intent(SplashScreen_One.this,SignUp_Two.class);
                     startActivity(inX);
                 }else{
-                    Intent inX=new Intent(SplashScreen_One.this,Home_Five.class);
-                    inX.putExtra("UserId",ifDefault);
+                    Intent inX=new Intent(SplashScreen_One.this,LogIn_Three.class);
                     startActivity(inX);
                 }
 

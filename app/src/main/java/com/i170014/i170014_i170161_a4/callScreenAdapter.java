@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,16 +59,16 @@ public class callScreenAdapter extends RecyclerView.Adapter<callScreenAdapter.My
     }
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        holder.contactNameRV7.setText(lX.get(position).getFirstName()+" "+lX.get(position).getLastName());
-        holder.contactNumberRV7.setText(lX.get(position).getPhone());
-        holder.contactPictureRV7.setImageBitmap(lX.get(position).getImage());
+        holder.contactNameRV7.setText(displayedlX.get(position).getFirstName()+" "+displayedlX.get(position).getLastName());
+        holder.contactNumberRV7.setText(displayedlX.get(position).getPhone());
+        holder.contactPictureRV7.setImageBitmap(displayedlX.get(position).getImage());
         holder.recyclerViewRowFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(c,
-                        "Call Placed to : "+ lX.get(holder.getAdapterPosition()).getFirstName(),
+                        "Call Placed to : "+ displayedlX.get(holder.getAdapterPosition()).getFirstName(),
                         Toast.LENGTH_LONG).show();
-                placeCall(lX.get(holder.getAdapterPosition()).getEmail(),lX.get(holder.getAdapterPosition()).getFirstName()+" "+lX.get(holder.getAdapterPosition()).getLastName(),lX.get(position).getImage());
+                placeCall(displayedlX.get(holder.getAdapterPosition()).getEmail(),displayedlX.get(holder.getAdapterPosition()).getFirstName()+" "+displayedlX.get(holder.getAdapterPosition()).getLastName(),displayedlX.get(position).getImage());
             }
         });
     }
@@ -86,7 +87,7 @@ public class callScreenAdapter extends RecyclerView.Adapter<callScreenAdapter.My
 
     @Override
     public int getItemCount() {
-        return this.lX.size();
+        return this.displayedlX.size();
     }
 
     @Override
@@ -110,8 +111,14 @@ public class callScreenAdapter extends RecyclerView.Adapter<callScreenAdapter.My
                     constraint = constraint.toString().toLowerCase();
                     for (int i = 0; i < lX.size(); i++) {
                         String data = lX.get(i).getFirstName();
+                        Log.d("data",data);
+                        Log.d("data",constraint.toString().toLowerCase());
                         if (data.toLowerCase().contains(constraint.toString())) {
-                            FilteredArrList.add(new userData(lX.get(i).getId(), lX.get(i).getEmail(), lX.get(i).getPass(), lX.get(i).getFirstName(), lX.get(i).getLastName(), lX.get(i).getGender(), lX.get(i).getBio(), lX.get(i).getStatus(), lX.get(i).getPhone()));
+                            Log.d("data","here");
+                            userData usX=new userData(lX.get(i).getId(), lX.get(i).getEmail(), lX.get(i).getPass(), lX.get(i).getFirstName(), lX.get(i).getLastName(), lX.get(i).getGender(), lX.get(i).getBio(), lX.get(i).getStatus(), lX.get(i).getPhone());
+                            usX.setImage(lX.get(i).getImage());
+                            FilteredArrList.add(usX);
+
                         }
                     }
                     // set the Filtered result to return

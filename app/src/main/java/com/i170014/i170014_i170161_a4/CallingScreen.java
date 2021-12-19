@@ -54,4 +54,10 @@ public class CallingScreen extends AppCompatActivity {
     private void makeVideoCall(String recieverEmail,String callerEmail) {
         //Write Video Calling code here
     }
+    private void makeGroupCall(String recieverEmail,String callerEmail) {
+        //Write Calling code here
+    }
+    private void makeGroupVideoCall(String recieverEmail,String callerEmail) {
+        //Write Video Calling code here
+    }
 }
