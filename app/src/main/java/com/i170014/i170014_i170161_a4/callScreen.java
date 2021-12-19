@@ -13,8 +13,11 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,6 +56,7 @@ public class callScreen extends AppCompatActivity {
     int CAMERA_REQUEST = 1888;
     int MY_CAMERA_PERMISSION_CODE = 100;
     String Email,Pass;
+    EditText searchText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +69,24 @@ public class callScreen extends AppCompatActivity {
         Email = extras.getString("Email");
         Pass = extras.getString("Pass");
         getAllUsers();
+
+
+        searchText=findViewById(R.id.search_text);
+        searchText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //Pass changed search text to adapter for filtering search results
+                myAdapter.getFilter().filter(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
 
     }

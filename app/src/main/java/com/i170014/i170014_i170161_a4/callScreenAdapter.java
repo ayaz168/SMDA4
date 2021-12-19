@@ -12,6 +12,8 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,21 +22,24 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class callScreenAdapter extends RecyclerView.Adapter<callScreenAdapter.MyViewHolder>{
+public class callScreenAdapter extends RecyclerView.Adapter<callScreenAdapter.MyViewHolder> implements Filterable {
     List<userData> lX;
     Context c;
     userData currentUser;
+    List<userData> displayedlX;
 
     public callScreenAdapter(Context c,List<userData> lX,userData usX) {
         this.lX = lX;
         this.c = c;
         this.currentUser=usX;
+        this.displayedlX=lX;
     }
 
     @NonNull
@@ -82,6 +87,48 @@ public class callScreenAdapter extends RecyclerView.Adapter<callScreenAdapter.My
     @Override
     public int getItemCount() {
         return this.lX.size();
+    }
+
+    @Override
+    public Filter getFilter() {
+        Filter filter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults results = new FilterResults();        // Holds the results of a filtering operation in values
+                ArrayList<userData> FilteredArrList = new ArrayList<userData>();
+
+                if (lX == null) {
+                    lX = new ArrayList<userData>(displayedlX); // saves the original data in mOriginalValues
+                }
+
+                if (constraint == null || constraint.length() == 0) {
+
+                    // set the Original result to return
+                    results.count = lX.size();
+                    results.values = lX;
+                } else {
+                    constraint = constraint.toString().toLowerCase();
+                    for (int i = 0; i < lX.size(); i++) {
+                        String data = lX.get(i).getFirstName();
+                        if (data.toLowerCase().contains(constraint.toString())) {
+                            FilteredArrList.add(new userData(lX.get(i).getId(), lX.get(i).getEmail(), lX.get(i).getPass(), lX.get(i).getFirstName(), lX.get(i).getLastName(), lX.get(i).getGender(), lX.get(i).getBio(), lX.get(i).getStatus(), lX.get(i).getPhone()));
+                        }
+                    }
+                    // set the Filtered result to return
+                    results.count = FilteredArrList.size();
+                    results.values = FilteredArrList;
+                }
+                return results;
+
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                displayedlX=(ArrayList<userData>)results.values;
+                notifyDataSetChanged();
+            }
+        };
+        return filter;
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
