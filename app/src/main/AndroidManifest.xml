@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
+        android:name=".MyNotifications"
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -47,6 +48,14 @@
         </activity>
         <activity
             android:name=".ContactScreen_Seven"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".callScreen"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".CallingScreen"
             android:exported="true">
         </activity>
         <activity

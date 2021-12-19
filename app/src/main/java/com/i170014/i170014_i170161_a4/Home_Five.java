@@ -79,9 +79,10 @@ public class Home_Five extends AppCompatActivity {
         callScreen5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Intent inX=new Intent(Home_Five.this,callScreen.class);
-                //inX.putExtra("email",currentUser.getEmail());
-                //startActivity(inX);
+                Intent inX=new Intent(Home_Five.this, callScreen.class);
+                inX.putExtra("Email",Email);
+                inX.putExtra("Pass",Pass);
+                startActivity(inX);
             }
         });
         cameraScreen5.setOnClickListener(new View.OnClickListener() {
