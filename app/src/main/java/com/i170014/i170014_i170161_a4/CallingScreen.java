@@ -11,6 +11,11 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class CallingScreen extends AppCompatActivity {
     String imagePath;
@@ -56,6 +61,21 @@ public class CallingScreen extends AppCompatActivity {
     }
     private void makeGroupCall(String recieverEmail,String callerEmail) {
         //Write Calling code here
+        OkHttpClient client = new OkHttpClient()
+                .newBuilder()
+                .build();
+
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(mediaType, "{\n  \"method\": \"conferenceCallout\",\n  \"conferenceCallout\": {\n    \"cli\": \"PRIVATE\",\n    \"destination\": {\n      \"type\": \"number\",\n      \"endpoint\": \"+923329143592\"\n    },\n    \"locale\": \"en-US\",\n    \"greeting\": \"\",\n    \"conferenceId\": \"3mmrwbfw4sf\"\n  }\n}");
+
+        Request request = new Request.Builder()
+                .url("https://calling.api.sinch.com/calling/v1/callouts")
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Basic ZDFkMDdjODUtMjU3OS00NjhhLWFmNzQtNzc2MmMyNTQ0MmQ5OlZZQ1dFbnZxaVVlemt2ZlgxWEVxRWc9PQ==")
+                .method("POST", body)
+                .build();
+
+        //Response response = client.newCall(request).execute();
     }
     private void makeGroupVideoCall(String recieverEmail,String callerEmail) {
         //Write Video Calling code here
