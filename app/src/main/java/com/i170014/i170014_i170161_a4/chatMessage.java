@@ -62,7 +62,7 @@ public class chatMessage extends AppCompatActivity {
     EditText typedMessage;
     ImageView openCamera,sendMessage,currentImage7,openGallery;
     List<messageData> converationTotal;
-    TextView currentUserName7;
+    TextView currentUserName7,userStatus;
     String encodedImageString;
     int CAMERA_REQUEST = 1888;
     int MY_CAMERA_PERMISSION_CODE = 100;
@@ -552,6 +552,8 @@ public class chatMessage extends AppCompatActivity {
                                         Log.d("RecieverX",temp.getFirstName());
                                         reciever=temp;
                                     }
+                                    userStatus=findViewById(R.id.userStatus);
+
                                     currentUserName7.setText(RecieverFullName);
 
                                 }
@@ -559,6 +561,14 @@ public class chatMessage extends AppCompatActivity {
                                 Toast.makeText(chatMessage.this,
                                         sender.getFirstName()+" --  "+reciever.getFirstName(),
                                         Toast.LENGTH_LONG).show();
+                                Date currentTime = Calendar.getInstance().getTime();
+                                int hour=currentTime.getHours();
+                                int min = currentTime.getMinutes();
+                                if(reciever.getStatus().contains("1")){
+                                    userStatus.setText("Online Now : " +hour+" :"+min);
+                                }else{
+                                    userStatus.setText("Last Seen:"+hour+" :"+min);
+                                }
                                 getMessageData(sender.getId(),reciever.getId());
 
                             }else{

@@ -68,6 +68,9 @@ public class callScreenAdapter extends RecyclerView.Adapter<callScreenAdapter.My
                 Toast.makeText(c,
                         "Call Placed to : "+ displayedlX.get(holder.getAdapterPosition()).getFirstName(),
                         Toast.LENGTH_LONG).show();
+//                displayedlX.add(displayedlX.get(position));//For call log not tested.
+//                lX.add(displayedlX.get(position));
+//                notifyDataSetChanged();
                 placeCall(displayedlX.get(holder.getAdapterPosition()).getEmail(),displayedlX.get(holder.getAdapterPosition()).getFirstName()+" "+displayedlX.get(holder.getAdapterPosition()).getLastName(),displayedlX.get(position).getImage());
             }
         });
